@@ -1,11 +1,11 @@
 services:
     # image project
-    app:
+    app-laravel:
         build:
             context: .
             dockerfile: Dockerfile
         image: php:8.3-fpm
-        container_name: app
+        container_name: app-laravel
         restart: unless-stopped
         tty: true
         working_dir: /var/www/
@@ -15,12 +15,12 @@ services:
         ports:
             - "9000:9000"
         networks:
-            - laravel-cms
+            - laravel-base
 
     # nginx
-    nginx:
+    nginx-laravel:
         image: nginx:alpine
-        container_name: nginx
+        container_name: nginx-laravel
         restart: unless-stopped
         tty: true
         ports:
@@ -30,19 +30,19 @@ services:
             - ./:/var/www
             - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
         networks:
-            - laravel-cms
+            - laravel-base
 
     # db postgres
-    db:
+    db-laravel:
         platform: linux/x86_64
         image: mariadb
-        container_name: db
+        container_name: db-laravel
         restart: unless-stopped
         tty: true
         ports:
             - "3306:3306"
         environment:
-            MYSQL_DATABASE: cms
+            MYSQL_DATABASE: laravel
             MYSQL_ROOT_PASSWORD: root
             SERVICE_TAGS: dev
             SERVICE_NAME: db
@@ -50,13 +50,13 @@ services:
             - ./docker/dbdata:/var/lib/mysql
             - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
         networks:
-            - laravel-cms
+            - laravel-base
 
     # phpmyadmin
-    phpmyadmin:
+    phpmyadmin-laravel:
         image: phpmyadmin/phpmyadmin
         platform: linux/amd64
-        container_name: phpmyadmin_canal
+        container_name: phpmyadmin_laravel
         environment:
             - PMA_ARBITRARY=1
         restart: always
@@ -68,8 +68,8 @@ services:
             - ~/docker/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
             - ./docker/phpmyadmin/upload.ini:/usr/local/etc/php/php.ini
         networks:
-            - laravel-cms
+            - laravel-base
 
 networks:
-    laravel-cms:
+    laravel-base:
         driver: bridge
